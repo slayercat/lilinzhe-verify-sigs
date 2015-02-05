@@ -140,13 +140,22 @@ class AuthData(object):
       self.has_countersignature = False
       return
     
+    knowns_unauth_attr = [oun for oun in unauth_attrs if oids.OID_TO_CLASS.get(oun[0]) is not None]
+    if len(knowns_unauth_attr) == 0:
+      self.has_countersignature = False
+      return
+
+    target_unauth_attr = knowns_unauth_attr[0]
+    #this is useless . for 1, 3, 6, 1, 4, 1, 311, 3, 3, 1 not in oids.OID_TO_CLASS.get
+    #will keep it for futher remove
     if list(unauth_attrs[0][0]) == [1, 3, 6, 1, 4, 1, 311, 3, 3, 1]:
         # TODO: we will skip m$ timestamp for now. shell be fixed later
+        # TODO: see what 1.3.6.1.4.1.311.2.4.1 is. which is unauthenticatedAttributes
         self.has_countersignature = False
         return
 
     self.has_countersignature = True
-    self.counter_sig_info = self._ParseCountersig(unauth_attrs)
+    self.counter_sig_info = self._ParseCountersig(target_unauth_attr)
     self.counter_sig_cert_id = self._ParseIssuerInfo(
         self.counter_sig_info['issuerAndSerialNumber'])
 
@@ -240,8 +249,7 @@ class AuthData(object):
       res[self._ExtractIssuer(cert)] = cert
     return res
 
-  def _ParseCountersig(self, unauth_attrs):
-    attr = unauth_attrs[0]
+  def _ParseCountersig(self, attr):
     if oids.OID_TO_CLASS.get(attr['type']) is not pkcs7.CountersignInfo:
       raise Asn1Error('Unexpected countersign OID.')
     values = attr['values']
@@ -386,9 +394,6 @@ class AuthData(object):
 
     if not self.has_countersignature: return
 
-    unauth_attrs = self.signer_info['unauthenticatedAttributes']
-    if len(unauth_attrs) != 1:
-      raise Asn1Error('Expected one attribute, got %d.' % len(unauth_attrs))
     # Extra structure parsed in _ParseCountersig
 
     # signer_info of the counter signature
