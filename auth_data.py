@@ -139,6 +139,11 @@ class AuthData(object):
     if unauth_attrs is None:
       self.has_countersignature = False
       return
+    
+    if list(unauth_attrs[0][0]) == [1, 3, 6, 1, 4, 1, 311, 3, 3, 1]:
+        # TODO: we will skip m$ timestamp for now. shell be fixed later
+        self.has_countersignature = False
+        return
 
     self.has_countersignature = True
     self.counter_sig_info = self._ParseCountersig(unauth_attrs)
