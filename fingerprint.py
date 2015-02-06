@@ -124,7 +124,7 @@ class Fingerprinter(object):
   BLOCK_SIZE = 1000000
   GENERIC_HASH_CLASSES = (hashlib.md5, hashlib.sha1, hashlib.sha256,
                           hashlib.sha512)
-  AUTHENTICODE_HASH_CLASSES = (hashlib.md5, hashlib.sha1)
+  AUTHENTICODE_HASH_CLASSES = (hashlib.md5, hashlib.sha1, hashlib.sha256, hashlib.sha512)
 
   def __init__(self, file_obj):
     self.fingers = []

@@ -310,8 +310,10 @@ class AuthData(object):
       raise Asn1Error('Expected exactly one digestAlgorithm, got %d.' %
                       len(self.signed_data['digestAlgorithms']))
     spec = self.signed_data['digestAlgorithms'][0]
-    if (self.digest_algorithm is not hashlib.md5 and
-        self.digest_algorithm is not hashlib.sha1):
+    if (self.digest_algorithm not in [hashlib.md5,
+                                      hashlib.sha1,
+                                      hashlib.sha256,
+                                      hashlib.sha512] ):
       raise Asn1Error('digestAlgorithm must be md5 or sha1, was %s.' %
                       spec['algorithm'].prettyPrint())
     self._ValidateEmptyParams(spec['parameters'])
