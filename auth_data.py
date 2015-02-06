@@ -399,7 +399,10 @@ class AuthData(object):
     # Make sure counter_sig_info hash algorithm is consistent
     oid = self.counter_sig_info['digestAlgorithm']['algorithm']
     if oids.OID_TO_CLASS.get(oid) is not self.digest_algorithm:
-      raise Asn1Error('Outer and countersign digest algorithms don\'t match.')
+      self.digest_algorithm_out= oids.OID_TO_CLASS.get(oid)  # XXX: fuck the real world
+      #raise Asn1Error('Outer and countersign digest algorithms don\'t match.')
+    else:
+        self.digest_algorithm_out=self.digest_algorithm
     params = self.counter_sig_info['digestAlgorithm']['parameters']
     self._ValidateEmptyParams(params)
 
@@ -472,7 +475,7 @@ class AuthData(object):
     if self.has_countersignature:
       # Validates the hash value found in the authenticated attributes of the
       # counter signature against the hash of the outer signature.
-      auth_attr_hash = self.digest_algorithm(self.encrypted_digest).digest()
+      auth_attr_hash = self.digest_algorithm_out(self.encrypted_digest).digest()
       if auth_attr_hash != self.expected_auth_attrs_hash:
         raise Asn1Error('3: Validation of countersignature hash failed.')
 
@@ -592,7 +595,7 @@ class AuthData(object):
 
     if self.has_countersignature:
       signing_cert = self.certificates[self.counter_sig_cert_id]
-      v = self._ValidatePubkeyGeneric(signing_cert, self.digest_algorithm,
+      v = self._ValidatePubkeyGeneric(signing_cert, self.digest_algorithm_out,
                                       self.computed_counter_attrs_for_hash,
                                       self.encrypted_counter_digest)
       if v != 1:
