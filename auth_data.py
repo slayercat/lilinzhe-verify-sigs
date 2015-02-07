@@ -122,16 +122,20 @@ class AuthData(object):
     self.auth_attrs, self.computed_auth_attrs_for_hash = (
         self._ParseAuthAttrs(self.signer_info['authenticatedAttributes'],
                              required=[pkcs7.ContentType,
-                                       pkcs7.DigestInfo,
-                                       spc.SpcSpOpusInfo]))
+                                       pkcs7.DigestInfo]))
     hashval, rest = decoder.decode(self.auth_attrs[pkcs7.DigestInfo][0])
     if rest: raise Asn1Error('Extra unparsed content.')
     if hashval.__class__ is not univ.OctetString:
       raise Asn1Error('Hash value expected to be OctetString.')
     self.expected_spc_info_hash = str(hashval)
-
-    opus_info_asn1 = self.auth_attrs[spc.SpcSpOpusInfo][0]
-    self.program_name, self.program_url = self._ParseOpusInfo(opus_info_asn1)
+    
+    #spc.SpcSpOpusInfo might not there in real world
+    #spc.SpcSpOpusInfo is used for program name and url. it can not be required in realworld
+    if spc.SpcSpOpusInfo in self.auth_attrs:
+      opus_info_asn1 = self.auth_attrs[spc.SpcSpOpusInfo][0]
+      self.program_name, self.program_url = self._ParseOpusInfo(opus_info_asn1)
+    else:
+      self.program_name , self.program_url = None,None 
 
     self.encrypted_digest = str(self.signer_info['encryptedDigest'])
 
