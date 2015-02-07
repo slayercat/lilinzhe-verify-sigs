@@ -397,7 +397,7 @@ class AuthData(object):
     # Extra structure parsed in _ParseCountersig
 
     # signer_info of the counter signature
-    if self.counter_sig_info['version'] != 1:
+    if self.counter_sig_info['version'] not in (1,0): #some file is 0, fuck the real world
       raise Asn1Error('Countersignature wrong version: %s' %
                       self.counter_sig_info['version'].prettyPrint())
 
