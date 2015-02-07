@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 
 # Copyright 2011 Google Inc. All Rights Reserved.
 #
@@ -113,7 +114,7 @@ def main():
       print('OpenSSL Errors:\n%s' % auth.openssl_error)
     raise
 
-  print('Program: %s, URL: %s' % (auth.program_name, auth.program_url))
+  print('Program: %s, URL: %s' % (repr(auth.program_name), auth.program_url))
   if auth.has_countersignature:
     print('Countersignature is present. Timestamp: %s UTC' %
           time.asctime(time.gmtime(auth.counter_timestamp)))
