@@ -577,8 +577,15 @@ class AuthData(object):
     """Given a cert signed by another cert, validates the signature."""
     # First the naive way -- note this does not check expiry / use etc.
     signed_m2 = M2_X509.load_cert_der_string(der_encoder.encode(signed_cert))
-    signing_m2 = M2_X509.load_cert_der_string(der_encoder.encode(signing_cert))
+    signing_cert_text=der_encoder.encode(signing_cert)
+    signing_m2 = M2_X509.load_cert_der_string(signing_cert_text)
     pubkey = signing_m2.get_pubkey()
+    #XXX: eval! eval!!! 
+    #for openssl doesn't accept md2 as hash method. and such a cert has been used every where.
+    #will not just trust it
+    if hashlib.md5(signing_cert_text).hexdigest() == '10fc635df6263e0df325be5f79cd6767':
+        return #10fc635df6263e0df325be5f79cd6767: Issuer: C=US, O=VeriSign, Inc., OU=Class 3 Public Primary Certification Authority
+                                                #Serial Number:70:ba:e4:1d:10:d9:29:34:b6:38:ca:7b:03:cc:ba:bf
     v = signed_m2.verify(pubkey)
     if v != 1:
       self.openssl_error = M2_Err.get_error()
